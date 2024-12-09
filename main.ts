@@ -26,5 +26,7 @@ await fsRoutes(app, {
 });
 
 if (import.meta.main) {
-  await app.listen();
+  await app.listen({
+    onListen: (addr) => console.log(`Listening on ${String(addr)}`),
+  });
 }
