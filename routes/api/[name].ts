@@ -8,11 +8,18 @@ export const handler = define.handlers({
     url.searchParams.set("name", ctx.params.name);
 
     if (ctx.url.searchParams.get("set")) {
-      await cache.put(url, new Response(ctx.url.searchParams.get("set")));
+      const resp = new Response();
+      resp.headers.set("x-test", ctx.url.searchParams.get("set")!);
+      await cache.put(url, resp);
       return new Response("cached");
     }
 
     const cached = await cache.match(url);
-    return cached ?? new Response("not cached");
+    if (cached) {
+      await cached.body?.cancel();
+      return new Response(cached.headers.get("x-test"));
+    } else {
+      return new Response("not cached");
+    }
   },
 });
